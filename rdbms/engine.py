@@ -49,3 +49,49 @@ def create_table(table_name, columns):
     save_rows(table_name, [])
 
     return f"Table '{table_name}' created successfully."
+
+
+def validate_type(value, expected_type):
+    if expected_type == "INT":
+        return isinstance(value, int)
+    if expected_type == "TEXT":
+        return isinstance(value, str)
+    return False
+
+
+from rdbms.storage import load_schema, load_rows, save_rows
+
+
+def insert_into(table_name, values):
+    schema = load_schema(table_name)
+    rows = load_rows(table_name)
+
+    columns = schema["columns"]
+    primary_key = schema["primary_key"]
+
+    if len(values) != len(columns):
+        raise Exception("Column count does not match value count")
+
+    row = {}
+    for (col_name, col_def), value in zip(columns.items(), values):
+        if not validate_type(value, col_def["type"]):
+            raise Exception(f"Invalid type for column '{col_name}'")
+
+        row[col_name] = value
+
+    # Primary key uniqueness
+    for existing in rows:
+        if existing[primary_key] == row[primary_key]:
+            raise Exception("Primary key constraint violated")
+
+    # Unique constraints
+    for col_name, col_def in columns.items():
+        if col_def.get("unique"):
+            for existing in rows:
+                if existing[col_name] == row[col_name]:
+                    raise Exception(f"Unique constraint violated on '{col_name}'")
+
+    rows.append(row)
+    save_rows(table_name, rows)
+
+    return "1 row inserted."
