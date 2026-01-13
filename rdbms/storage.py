@@ -32,12 +32,12 @@ def load_schema(table_name):
 
 def save_rows(table_name, rows):
     ensure_data_dir()
-    with open(rows_path(table_name), "w") as f:
+    with open(row_path(table_name), "w") as f:
         json.dump(rows, f, indent=2)
 
 
 def load_rows(table_name):
-    path = rows_path(table_name)
+    path = row_path(table_name)
     if not os.path.exists(path):
         return []
     with open(path) as f:

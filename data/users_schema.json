@@ -7,6 +7,11 @@
     },
     "name": {
       "type": "TEXT"
+    },
+    "email": {
+      "type": "TEXT",
+      "unique": true
     }
-  }
+  },
+  "primary_key": "id"
 }
