@@ -1,0 +1,12 @@
+{
+  "table": "users",
+  "columns": {
+    "id": {
+      "type": "INT",
+      "primary_key": true
+    },
+    "name": {
+      "type": "TEXT"
+    }
+  }
+}
