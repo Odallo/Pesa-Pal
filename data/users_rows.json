@@ -5,13 +5,18 @@
     "email": "sarah@example.com"
   },
   {
-    "id": 1,
-    "name": "Jane",
-    "email": "janet@email.com"
-  },
-  {
     "id": 6,
     "name": "Mike",
     "email": "mike@example.com"
+  },
+  {
+    "id": 1,
+    "name": "Eugene Odallo",
+    "email": "odaloeugine@gmail.com"
+  },
+  {
+    "id": 7,
+    "name": "loaded",
+    "email": "jhgqhuqg@gmail.com"
   }
 ]
