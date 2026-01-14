@@ -1,10 +1,5 @@
 [
   {
-    "id": 2,
-    "name": "Jane",
-    "email": "jane@email.com"
-  },
-  {
     "id": 5,
     "name": "Sarah",
     "email": "sarah@example.com"

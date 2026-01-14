@@ -1,0 +1,19 @@
+{
+  "table": "orders",
+  "columns": {
+    "id": {
+      "type": "INT",
+      "primary_key": true
+    },
+    "user_id": {
+      "type": "INT"
+    },
+    "total": {
+      "type": "INT"
+    },
+    "product": {
+      "type": "TEXT"
+    }
+  },
+  "primary_key": "id"
+}

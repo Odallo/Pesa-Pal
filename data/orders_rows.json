@@ -1,0 +1,26 @@
+[
+  {
+    "id": 101,
+    "user_id": 1,
+    "total": 500,
+    "product": "Laptop"
+  },
+  {
+    "id": 102,
+    "user_id": 5,
+    "total": 250,
+    "product": "Mouse"
+  },
+  {
+    "id": 103,
+    "user_id": 6,
+    "total": 750,
+    "product": "Keyboard"
+  },
+  {
+    "id": 104,
+    "user_id": 999,
+    "total": 100,
+    "product": "USB"
+  }
+]

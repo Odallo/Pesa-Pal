@@ -144,13 +144,102 @@ def build_pk_index(table_name):
     return index
 
 
-def select(table_name):
+def inner_join(left_table, right_table, left_key, right_key):
+    """
+    Perform INNER JOIN between two tables
+    Returns combined rows with prefixed column names
+    """
+    left_rows = load_rows(left_table)
+    right_rows = load_rows(right_table)
+    
+    result = []
+    
+    # Nested loop join - O(n × m) baseline
+    for left_row in left_rows:
+        for right_row in right_rows:
+            if left_row[left_key] == right_row[right_key]:
+                combined = {}
+                
+                # Prefix columns with table names
+                for k, v in left_row.items():
+                    combined[f"{left_table}.{k}"] = v
+                    
+                for k, v in right_row.items():
+                    combined[f"{right_table}.{k}"] = v
+                    
+                result.append(combined)
+    
+    return result
+
+
+def inner_join_optimized(left_table, right_table, left_key, right_key):
+    """
+    Optimized INNER JOIN using index when right_key is a primary key
+    Reduces complexity from O(n × m) to O(n + m)
+    """
+    left_rows = load_rows(left_table)
+    right_rows = load_rows(right_table)
+    right_schema = load_schema(right_table)
+    
+    result = []
+    
+    # Check if right_key is primary key (can use index)
+    if right_schema.get("primary_key") == right_key:
+        index = load_index(right_table)
+        
+        # Use index for O(1) lookups
+        for left_row in left_rows:
+            lookup_value = str(left_row[left_key])
+            position = index.get(lookup_value)
+            
+            if position is not None:
+                right_row = right_rows[position]
+                combined = {}
+                
+                for k, v in left_row.items():
+                    combined[f"{left_table}.{k}"] = v
+                    
+                for k, v in right_row.items():
+                    combined[f"{right_table}.{k}"] = v
+                    
+                result.append(combined)
+    else:
+        # Fall back to nested loop join
+        return inner_join(left_table, right_table, left_key, right_key)
+    
+    return result
+
+
+def select_join(left_table, right_table, left_key, right_key, optimized=True):
+    """
+    High-level JOIN API that automatically chooses optimization
+    Returns combined rows with prefixed column names
+    """
+    if optimized:
+        return inner_join_optimized(left_table, right_table, left_key, right_key)
+    else:
+        return inner_join(left_table, right_table, left_key, right_key)
+
+
+def select(table_name, ordered_by_pk=False):
     """
     Select all rows from a table
     Returns a list of dictionaries representing the rows
+    If ordered_by_pk=True, returns rows ordered by primary key
     """
     schema = load_schema(table_name)
     rows = load_rows(table_name)
+    
+    if ordered_by_pk:
+        # Sort rows by primary key using the index
+        index = load_index(table_name)
+        pk = schema["primary_key"]
+        
+        # Create a list of (pk_value, row) tuples and sort by pk_value
+        sorted_rows = []
+        for pk_value, pos in sorted(index.items(), key=lambda x: int(x[0]) if x[0].isdigit() else x[0]):
+            sorted_rows.append(rows[pos])
+        return sorted_rows
     
     return rows
 
