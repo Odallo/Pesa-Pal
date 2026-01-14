@@ -106,3 +106,51 @@ def select(table_name):
     rows = load_rows(table_name)
     
     return rows
+
+
+def delete_from(table_name, where_column, where_value):
+    """
+    Delete rows from a table where column matches value
+    Returns number of deleted rows
+    """
+    schema = load_schema(table_name)
+    rows = load_rows(table_name)
+    
+    # Find rows to delete
+    original_count = len(rows)
+    rows = [row for row in rows if row[where_column] != where_value]
+    deleted_count = original_count - len(rows)
+    
+    if deleted_count == 0:
+        return "0 rows deleted."
+    
+    save_rows(table_name, rows)
+    return f"{deleted_count} row(s) deleted."
+
+
+def update(table_name, set_column, set_value, where_column, where_value):
+    """
+    Update rows in a table where column matches value
+    Returns number of updated rows
+    """
+    schema = load_schema(table_name)
+    rows = load_rows(table_name)
+    columns = schema["columns"]
+    
+    # Validate the set value type
+    if set_column in columns:
+        if not validate_type(set_value, columns[set_column]["type"]):
+            raise Exception(f"Invalid type for column '{set_column}'")
+    
+    # Find and update matching rows
+    updated_count = 0
+    for row in rows:
+        if row[where_column] == where_value:
+            row[set_column] = set_value
+            updated_count += 1
+    
+    if updated_count == 0:
+        return "0 rows updated."
+    
+    save_rows(table_name, rows)
+    return f"{updated_count} row(s) updated."
