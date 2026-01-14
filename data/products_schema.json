@@ -1,0 +1,16 @@
+{
+  "table": "products",
+  "columns": {
+    "id": {
+      "type": "INT",
+      "primary_key": true
+    },
+    "name": {
+      "type": "TEXT"
+    },
+    "price": {
+      "type": "INT"
+    }
+  },
+  "primary_key": "id"
+}

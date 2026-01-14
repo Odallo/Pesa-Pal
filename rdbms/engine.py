@@ -95,3 +95,14 @@ def insert_into(table_name, values):
     save_rows(table_name, rows)
 
     return "1 row inserted."
+
+
+def select(table_name):
+    """
+    Select all rows from a table
+    Returns a list of dictionaries representing the rows
+    """
+    schema = load_schema(table_name)
+    rows = load_rows(table_name)
+    
+    return rows
