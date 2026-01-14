@@ -10,21 +10,10 @@ import time
 import threading
 import webbrowser
 
-def show_banner():
-    """Display demo banner"""
-    print("🗄️  MiniRDBMS - Complete Database System Demo")
-    print("=" * 60)
-    print("Relational Database System with:")
-    print("✅ SQL-like interface")
-    print("✅ Primary key indexing") 
-    print("✅ Inner joins")
-    print("✅ Interactive REPL")
-    print("✅ Web demo application")
-    print("=" * 60)
 
 def demo_repl():
     """Quick REPL demo"""
-    print("\n📱 QUICK REPL DEMO")
+    print("\n QUICK REPL DEMO")
     print("-" * 30)
     
     from rdbms.parser import parse
@@ -53,13 +42,11 @@ def demo_repl():
 
 def start_web_app():
     """Start Flask web app"""
-    print("\n🌐 STARTING WEB DEMO")
+    print("\n STARTING WEB DEMO")
     print("-" * 30)
     print("Web app will be available at: http://localhost:5000")
-    print("Features: Add, Edit, Delete, List users")
     print("Press Ctrl+C to stop the web server")
     
-    # Give user time to read
     time.sleep(2)
     
     # Start Flask app
@@ -71,23 +58,23 @@ def main():
     show_banner()
     
     print("\nChoose demo mode:")
-    print("1. REPL demo (quick)")
-    print("2. Web app demo (full interactive)")
-    print("3. Both (REPL first, then web app)")
+    print("1. REPL demo")
+    print("2. Web app demo")
+    print("3. Both")
     
     try:
         choice = input("\nEnter choice (1-3): ").strip()
         
         if choice == "1":
             demo_repl()
-            print("\n✅ REPL demo complete!")
+            print("\n REPL demo complete!")
             
         elif choice == "2":
             start_web_app()
             
         elif choice == "3":
             demo_repl()
-            print("\n✅ REPL demo complete! Starting web app...")
+            print("\n REPL demo complete! Starting web app...")
             start_web_app()
             
         else:
@@ -95,9 +82,9 @@ def main():
             start_web_app()
             
     except KeyboardInterrupt:
-        print("\n\n👋 Demo stopped by user")
+        print("\n\n Demo stopped by user")
     except Exception as e:
-        print(f"\n❌ Demo error: {e}")
+        print(f"\n Demo error: {e}")
 
 if __name__ == "__main__":
     main()
