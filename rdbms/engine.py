@@ -47,6 +47,9 @@ def create_table(table_name, columns):
     # 4. saving the schema and the created table
     save_schema(table_name, schema)
     save_rows(table_name, [])
+    
+    # Build empty index for new table
+    save_index(table_name, {})
 
     return f"Table '{table_name}' created successfully."
 
@@ -59,7 +62,7 @@ def validate_type(value, expected_type):
     return False
 
 
-from rdbms.storage import load_schema, load_rows, save_rows
+from rdbms.storage import load_schema, load_rows, save_rows, load_index, save_index
 
 
 def insert_into(table_name, values):
@@ -69,15 +72,33 @@ def insert_into(table_name, values):
     columns = schema["columns"]
     primary_key = schema["primary_key"]
 
-    if len(values) != len(columns):
-        raise Exception("Column count does not match value count")
+    # Handle both list and dictionary inputs
+    if isinstance(values, dict):
+        # Dictionary input - validate all required columns are present
+        if len(values) != len(columns):
+            raise Exception("Column count does not match value count")
+        
+        row = values.copy()
+        
+        # Validate types for all columns
+        for col_name, col_def in columns.items():
+            if col_name not in row:
+                raise Exception(f"Missing value for column '{col_name}'")
+            if not validate_type(row[col_name], col_def["type"]):
+                raise Exception(f"Invalid type for column '{col_name}'")
+                
+    elif isinstance(values, list):
+        # List input - original behavior
+        if len(values) != len(columns):
+            raise Exception("Column count does not match value count")
 
-    row = {}
-    for (col_name, col_def), value in zip(columns.items(), values):
-        if not validate_type(value, col_def["type"]):
-            raise Exception(f"Invalid type for column '{col_name}'")
-
-        row[col_name] = value
+        row = {}
+        for (col_name, col_def), value in zip(columns.items(), values):
+            if not validate_type(value, col_def["type"]):
+                raise Exception(f"Invalid type for column '{col_name}'")
+            row[col_name] = value
+    else:
+        raise Exception("Values must be either a list or dictionary")
 
     # Primary key uniqueness
     for existing in rows:
@@ -93,8 +114,34 @@ def insert_into(table_name, values):
 
     rows.append(row)
     save_rows(table_name, rows)
+    
+    # Update index with new row
+    index = load_index(table_name)
+    pk_value = str(row[primary_key])
+    index[pk_value] = len(rows) - 1
+    save_index(table_name, index)
 
     return "1 row inserted."
+
+
+def build_pk_index(table_name):
+    """
+    Build primary key index for a table
+    Maps primary key values to row positions in the rows list
+    """
+    schema = load_schema(table_name)
+    rows = load_rows(table_name)
+    
+    # Find primary key column
+    pk = schema["primary_key"]
+    
+    # Build index: pk_value -> row_position
+    index = {}
+    for i, row in enumerate(rows):
+        index[str(row[pk])] = i
+    
+    save_index(table_name, index)
+    return index
 
 
 def select(table_name):
@@ -106,6 +153,21 @@ def select(table_name):
     rows = load_rows(table_name)
     
     return rows
+
+
+def select_by_pk(table_name, pk_value):
+    """
+    Select a single row by primary key using index (O(1) lookup)
+    Returns the row dictionary or None if not found
+    """
+    schema = load_schema(table_name)
+    rows = load_rows(table_name)
+    index = load_index(table_name)
+    
+    pos = index.get(str(pk_value))
+    if pos is not None:
+        return rows[pos]
+    return None
 
 
 def delete_from(table_name, where_column, where_value):
@@ -125,6 +187,10 @@ def delete_from(table_name, where_column, where_value):
         return "0 rows deleted."
     
     save_rows(table_name, rows)
+    
+    # Rebuild index after deletion (simple but inefficient)
+    build_pk_index(table_name)
+    
     return f"{deleted_count} row(s) deleted."
 
 

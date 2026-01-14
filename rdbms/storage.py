@@ -16,6 +16,10 @@ def row_path(table_name):
     return os.path.join(DATA_DIR, f"{table_name}_rows.json")
 
 
+def index_path(table_name):
+    return os.path.join(DATA_DIR, f"{table_name}_pk_index.json")
+
+
 def save_schema(table_name, schema):
     ensure_data_dir()
     with open(schema_path(table_name), "w") as f:
@@ -40,5 +44,19 @@ def load_rows(table_name):
     path = row_path(table_name)
     if not os.path.exists(path):
         return []
+    with open(path) as f:
+        return json.load(f)
+
+
+def save_index(table_name, index):
+    ensure_data_dir()
+    with open(index_path(table_name), "w") as f:
+        json.dump(index, f, indent=2)
+
+
+def load_index(table_name):
+    path = index_path(table_name)
+    if not os.path.exists(path):
+        return {}
     with open(path) as f:
         return json.load(f)
