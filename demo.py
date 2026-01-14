@@ -55,7 +55,6 @@ def start_web_app():
 
 def main():
     """Main demo function"""
-    show_banner()
     
     print("\nChoose demo mode:")
     print("1. REPL demo")
